@@ -39,8 +39,8 @@ int set_type(int pos, int tipo){
 		return -1;
 	Tabela[pos].tipo = tipo;
 	//printf("Pos %d tipo %d\n",pos,tipo);
-	Tabela[pos].tam = get_tam_tipo(tipo);
-	offset+=Tabela[pos].tam;
+	//Tabela[pos].tam = get_tam_tipo(tipo);
+	//offset+=Tabela[pos].tam;
 	return 1;
 }
 
