@@ -5,7 +5,7 @@
 #include <stdio.h>
 int linha = 1;
 
-int yyerror(char *s) { 
+void yyerror(char *s) { 
   printf("%s na linha %d\n",s,linha);
   exit(1); 
 }
