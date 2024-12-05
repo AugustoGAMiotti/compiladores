@@ -1,5 +1,6 @@
 %{ 
 /* Para simplificar a notação, S é para sintetizar. A atualizar. V verificar */
+void yyerror(char *s);
 #include "analex.c" 
 #include "codigo.h" 
 /* Funcoes auxiliares podem ser declaradas aqui */
@@ -43,7 +44,7 @@ void verifica_var_declarada(?);
 %type <val> Type TypeF
 %type <id_list> IDs ParamList ArgList
 %type <node> Atribuicao Exp Function Prog Statement Statement_Seq
-%type <node> If While Compound_Stt DoWhile FunctionCall For
+%type <node> If While Compound_Stt DoWhile FunctionCall
 
 %right '='
 
@@ -126,9 +127,8 @@ Statement_Seq :
 	;
 		
 Statement: 
-	  Atribuicao ';' {verifica_var_declarada($1.place); verifica_tipos_atrib(Tabela[$1.place].tipo, $1.tipo);} /* V declaracao, tipos atribuicao. */
+	  Atribuicao ';' {$$.place = $1.place; verifica_var_declarada($1.place); tipos_inconsistentes_atrib(Tabela[$1.place].tipo, $1.tipo);} /* V declaracao, tipos atribuicao. */
 	| If  /* S código. */
-	| For  /* S código. */
 	| While /* S código. */
 	| DoWhile /* S código. */
 	| FunctionCall ';'  /* S código. */
@@ -155,19 +155,19 @@ DoWhile:
 Atribuicao : ID '[' NUM ']' '=' Exp {if(Tabela[$1].tipo == -1) yyerror("Erro: tipo não declarado");
 									 if($3.tipo != Int) yyerror("Erro: indice do vetor incorreto");
 									 tipos_inconsistentes_atrib(Tabela[$1].tipo, $6.tipo);
-									 $$.tipo = $1.tipo;
+									 $$.tipo = $1;
 									 $$.place = $1;} /* V tipo indice. S tipo, place, código. */
     | ID '=' Exp {if(Tabela[$1].tipo == -1) yyerror("Erro: tipo não declarado");
 				  tipos_inconsistentes_atrib(Tabela[$1].tipo, $3.tipo);
-				  $$.tipo = $1.tipo;
+				  $$.tipo = $1;
 				  $$.place = $3;} /* S tipo, place, código. */
 	;
 				
 Exp :
-	  Exp '+' Exp {$$.tipo = retorna_maior_tipo($1, $3); ExpAri(&$$, "add", $1, $3);} /* S tipo, cod */
-	| Exp '-' Exp {$$.tipo = retorna_maior_tipo($1, $3); ExpAri(&$$, "sub", $1, $3);} /* S tipo, cod */
-	| Exp '*' Exp {$$.tipo = retorna_maior_tipo($1, $3); ExpAri(&$$, "mul", $1, $3);} /* S tipo, cod */
-	| Exp '/' Exp {$$.tipo = retorna_maior_tipo($1, $3); ExpAri(&$$, "div", $1, $3);} /* S tipo, cod */
+	  Exp '+' Exp {$$.tipo = retorna_maior_tipo($1.tipo, $3.tipo); ExpAri(&$$, "add", $1, $3);} /* S tipo, cod */
+	| Exp '-' Exp {$$.tipo = retorna_maior_tipo($1.tipo, $3.tipo); ExpAri(&$$, "sub", $1, $3);} /* S tipo, cod */
+	| Exp '*' Exp {$$.tipo = retorna_maior_tipo($1.tipo, $3.tipo); ExpAri(&$$, "mul", $1, $3);} /* S tipo, cod */
+	| Exp '/' Exp {$$.tipo = retorna_maior_tipo($1.tipo, $3.tipo); ExpAri(&$$, "div", $1, $3);} /* S tipo, cod */
 	| Exp '>' Exp {$$ = INT; ExpRel(&$$, "bgt", $1, $3);} /* S tipo, cod (bgt) */
 	| Exp '<' Exp {$$ = INT; ExpRel(&$$, "blt", $1, $3);} /* S tipo, cod (blt) */
 	| Exp GE Exp {$$ = INT;} /*  S tipo. Não precisa implementar código*/
