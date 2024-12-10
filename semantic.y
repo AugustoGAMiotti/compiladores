@@ -102,7 +102,11 @@ Decl:
 	; 
 	
 IDs :
-	  IDs ',' ID {?} /* S Lista de IDs. */
+	  IDs ',' ID {for(int i = 0; i < $1.tam; i++
+				$$.ids[i] = $1.ids[i];
+			} 
+			$1.tam = $1.tam;
+			$1.ids[tam++] = $3;/* S Lista de IDs. */
 	| IDs ',' Atribuicao {?} /* S Lista de IDs. */
 	| IDs ',' ID '[' NUM ']' {?} /* S Lista de IDs. */
 	| ID '[' NUM ']' {?} /* S Lista de IDs. */
