@@ -102,16 +102,38 @@ Decl:
 	; 
 	
 IDs :
-	  IDs ',' ID {for(int i = 0; i < $1.tam; i++
-				$$.ids[i] = $1.ids[i];
-			} 
-			$1.tam = $1.tam;
-			$1.ids[tam++] = $3;/* S Lista de IDs. */
-	| IDs ',' Atribuicao {?} /* S Lista de IDs. */
-	| IDs ',' ID '[' NUM ']' {?} /* S Lista de IDs. */
-	| ID '[' NUM ']' {?} /* S Lista de IDs. */
-	| ID {?} /* S Lista de IDs. */
-	| Atribuicao {?} /* S Lista de IDs. */
+	IDs ',' ID {
+		for(int i = 0; i < $1.tam; i++){
+			$$.ids[i] = $1.ids[i];
+		} 
+		$1.tam = $1.tam;
+		$1.ids[tam++] = $3;}/* S Lista de IDs. */
+	| IDs ',' Atribuicao {
+		for (int i = 0; i < $1.tam; i++) {
+            		$$.ids[i] = $1.ids[i];
+        	}
+        	$$.ids[$1.tam] = $3.place;
+        	$$.tam = $1.tam + 1;}/* S Lista de IDs. */
+    	| IDs ',' ID '[' NUM ']' {
+        	for (int i = 0; i < $1.tam; i++) {
+            		$$.ids[i] = $1.ids[i];
+        	}
+        	if (Tabela[$3].tipo == -1) yyerror("Erro: tipo não declarado");
+        	if ($5.tipo != Int) yyerror("Erro: índice do vetor incorreto");
+        	sprintf($$.ids[$1.tam], "%s[%d]", $3, $5);
+        	$$.tam = $1.tam + 1;}/* S Lista de IDs. */
+    	| ID '[' NUM ']' {
+        	if (Tabela[$1].tipo == -1) yyerror("Erro: tipo não declarado");
+        	if ($3.tipo != Int) yyerror("Erro: índice do vetor incorreto");
+        	sprintf($$.ids[0], "%s[%d]", $1, $3);
+        	$$.tam = 1;}/* S Lista de IDs. */
+    	| ID {
+        	if (Tabela[$1].tipo == -1) yyerror("Erro: tipo não declarado");
+        	$$.ids[0] = $1;
+        	$$.tam = 1;}/* S Lista de IDs. */
+    	| Atribuicao {
+        	$$.ids[0] = $1.place;
+        	$$.tam = 1;}/* S Lista de IDs. */
 	;
 	
 TypeF :
